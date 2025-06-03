@@ -5,6 +5,11 @@ from .base import Resampler
 from ..base import Property
 from ..types.state import ParticleState
 
+def resample_mu_driver(model,index):
+        if model.mu_W_transition_model is not None: 
+            model.mu_W=model.mu_W[...,index]
+            if model.mu_W_state is not None:
+                model.mu_W_state=model.mu_W_state[...,index]
 
 class SystematicResampler(Resampler):
     """
@@ -13,7 +18,6 @@ class SystematicResampler(Resampler):
     CDF. Complexity of order O(N) where N is the number of resampled particles.
 
     """
-
     def resample(self, particles, nparts=None):
         """
         Resample the particles
@@ -53,8 +57,8 @@ class SystematicResampler(Resampler):
 
         new_particles = particles[index]
         new_particles.log_weight = np.full((nparts, ), np.log(1/nparts))
+        self.update_resample_index(new_particles,index)
         return new_particles
-
 
 class ESSResampler(Resampler):
     """
@@ -149,8 +153,8 @@ class MultinomialResampler(Resampler):
 
         new_particles = particles[index]
         new_particles.log_weight = np.full((nparts, ), np.log(1/nparts))
+        self.update_resample_index(new_particles,index)
         return new_particles
-
 
 class StratifiedResampler(Resampler):
     """
@@ -199,8 +203,8 @@ class StratifiedResampler(Resampler):
 
         new_particles = particles[index]
         new_particles.log_weight = np.full((nparts, ), np.log(1/nparts))
+        self.update_resample_index(new_particles,index)
         return new_particles
-
 
 class ResidualMethod(Enum):
     MULTINOMIAL = 'multinomial'
@@ -319,5 +323,6 @@ class ResidualResampler(Resampler):
 
         new_particles = particles[index]
         new_particles.log_weight = np.full((nparts, ), np.log(1/nparts))
+        self.update_resample_index(new_particles,index)
 
         return new_particles
